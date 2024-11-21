@@ -1,0 +1,41 @@
+{
+	"schemaVersion": 1,
+	"id": "minecraft-todo-list",
+	"version": "${version}",
+	"name": "minecraft-todo-list",
+	"description": "This is an example description! Tell everyone what your mod is about!",
+	"authors": [
+		"Me!"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/minecraft-todo-list/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"de.baving.rene.mctodolist.Minecrafttodolist"
+		],
+		"client": [
+          "de.baving.rene.mctodolist.MinecraftTodoListClient"
+		]
+	},
+	"mixins": [
+		"minecraft-todo-list.mixins.json",
+		{
+			"config": "minecraft-todo-list.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.16.9",
+		"minecraft": "~1.21.3",
+		"java": ">=21",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}
