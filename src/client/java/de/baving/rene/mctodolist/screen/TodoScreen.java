@@ -29,10 +29,9 @@ public class TodoScreen extends Screen {
         taskManager = TaskManager.getInstance();
 
         // Initialize the combined task list
-        int listWidth = this.width - 20; // Adjust the width to be less than the screen width
         int listX = 10; // Position the list horizontally
         int listHeight = this.height - 100; // Adjust the height to leave space for input field and button
-        this.activeTaskList = new ScrollableListWidget(MinecraftClient.getInstance(), listWidth, listHeight, 40);
+        this.activeTaskList = new ScrollableListWidget(MinecraftClient.getInstance(), width, listHeight, 40);
         this.activeTaskList.setX(listX); // Set the left position of the list
         this.addDrawableChild(this.activeTaskList);
 
