@@ -55,7 +55,6 @@ public class TodoScreen extends Screen {
         if (!savedToDo.isEmpty()) {
             taskManager.addTask(savedToDo);
             this.populateTaskList();
-            savedToDo = ""; // Clear the savedToDo after adding
         }
         this.inputField.setText(""); // Clear the input field
     }
