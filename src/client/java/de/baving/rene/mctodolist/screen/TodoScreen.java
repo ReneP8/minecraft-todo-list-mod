@@ -1,3 +1,4 @@
+// TodoScreen.java
 package de.baving.rene.mctodolist.screen;
 
 import de.baving.rene.mctodolist.TaskManager;
@@ -14,42 +15,32 @@ public class TodoScreen extends Screen {
     private String savedToDo = "";
 
     private static TaskManager taskManager;
-    private ScrollableListWidget scrollableList;
+    private ScrollableListWidget activeTaskList;
 
     public TodoScreen() {
         super(Text.literal("To-Do List"));
     }
 
+    // TodoScreen.java
     @Override
     protected void init() {
         super.init();
 
         taskManager = TaskManager.getInstance();
 
-        // Initialize the scrollable list with adjusted width and position
-        int listWidth = this.width; // Adjust the width to be less than the screen width
-        int listX = 0; // Center the list horizontally
-        this.scrollableList = new ScrollableListWidget(MinecraftClient.getInstance(), listWidth, this.height / 2, 40);
-        this.scrollableList.setX(listX); // Set the left position of the list
-        this.addDrawableChild(this.scrollableList);
+        // Initialize the combined task list
+        int listWidth = this.width - 20; // Adjust the width to be less than the screen width
+        int listX = 10; // Position the list horizontally
+        int listHeight = this.height - 100; // Adjust the height to leave space for input field and button
+        this.activeTaskList = new ScrollableListWidget(MinecraftClient.getInstance(), listWidth, listHeight, 40);
+        this.activeTaskList.setX(listX); // Set the left position of the list
+        this.addDrawableChild(this.activeTaskList);
 
-        // Populate the scrollable list with tasks
-        for (int i = 0; i < taskManager.getTasks().size(); i++) {
-            String task = taskManager.getTasks().get(i);
-            int index = i;
-            this.scrollableList.addItem(task, () -> {
-                if (taskManager.getTasks().size() > index) {
-                    taskManager.removeTask(index);
-                }
-                if (this.scrollableList.children().size() > index){
-                    this.scrollableList.removeTodoEntry(this.scrollableList.children().get(index));
-                }
-
-            });
-        }
+        // Populate the combined task list with active and done tasks
+        this.populateTaskList();
 
         // Input Field
-        this.inputField = new TextFieldWidget(this.textRenderer, this.width / 2 - 100, this.height - 40, 150, 20, Text.literal("Enter To-Do"));
+        this.inputField = new TextFieldWidget(this.textRenderer, this.width / 2 - 75, this.height - 50, 150, 20, Text.literal("Enter To-Do"));
         this.inputField.setMaxLength(100); // Limit input length
         this.inputField.setEditable(true);
         this.addDrawableChild(this.inputField);
@@ -59,19 +50,55 @@ public class TodoScreen extends Screen {
             this.savedToDo = this.inputField.getText();
             if (!this.savedToDo.isEmpty()) {
                 taskManager.addTask(this.savedToDo);
-                int index = taskManager.getTasks().size() - 1;
-                this.scrollableList.addItem(this.savedToDo, () -> {
-                    if (taskManager.getTasks().size() > index) {
-                        taskManager.removeTask(index);
-                    }
-                    if (this.scrollableList.children().size() > index){
-                        this.scrollableList.removeTodoEntry(this.scrollableList.children().get(index));
-                    }
-                });
+                this.populateTaskList();
                 this.savedToDo = ""; // Clear the savedToDo after adding
             }
             this.inputField.setText(""); // Clear the input field
-        }).dimensions(this.width / 2 + 60, this.height - 40, 50, 20).build());
+        }).dimensions(this.width / 2 + 80, this.height - 50, 50, 20).build());
+    }
+
+    private void populateTaskList() {
+        this.activeTaskList.clearAllEntries();
+        for (int i = 0; i < taskManager.getTasks().size(); i++) {
+            String task = taskManager.getTasks().get(i);
+            int index = i;
+            this.activeTaskList.addItem(task, false, () -> {
+                if (taskManager.getTasks().size() > index) {
+                    taskManager.removeTask(index);
+                }
+                if (this.activeTaskList.children().size() > index) {
+                    this.activeTaskList.removeTodoEntry(this.activeTaskList.children().get(index));
+                }
+            }, () -> {
+                if (taskManager.getTasks().size() > index) {
+                    taskManager.markTaskAsDone(index);
+                }
+                if (this.activeTaskList.children().size() > index) {
+                    this.activeTaskList.removeTodoEntry(this.activeTaskList.children().get(index));
+                }
+                this.populateTaskList();
+            });
+        }
+        for (int i = 0; i < taskManager.getDoneTasks().size(); i++) {
+            String task = taskManager.getDoneTasks().get(i);
+            int index = i;
+            this.activeTaskList.addItem(task, true, () -> {
+                if (taskManager.getDoneTasks().size() > index) {
+                    taskManager.removeDoneTask(index);
+                }
+                if (this.activeTaskList.children().size() > index){
+                    this.activeTaskList.removeTodoEntry(this.activeTaskList.children().get(index));
+                }
+            }, () -> {
+                if (taskManager.getDoneTasks().size() > index) {
+                    taskManager.markTaskAsNotDone(index);
+                }
+                if (this.activeTaskList.children().size() > index){
+                    this.activeTaskList.removeTodoEntry(this.activeTaskList.children().get(index));
+                }
+                this.populateTaskList();
+            });
+        }
     }
 
     @Override
