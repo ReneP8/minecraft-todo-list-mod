@@ -9,10 +9,10 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.text.Text;
+import org.lwjgl.glfw.GLFW;
 
 public class TodoScreen extends Screen {
     private TextFieldWidget inputField;
-    private String savedToDo = "";
 
     private static TaskManager taskManager;
     private ScrollableListWidget activeTaskList;
@@ -21,7 +21,6 @@ public class TodoScreen extends Screen {
         super(Text.literal("To-Do List"));
     }
 
-    // TodoScreen.java
     @Override
     protected void init() {
         super.init();
@@ -42,18 +41,23 @@ public class TodoScreen extends Screen {
         this.inputField = new TextFieldWidget(this.textRenderer, this.width / 2 - 75, this.height - 50, 150, 20, Text.literal("Enter To-Do"));
         this.inputField.setMaxLength(100); // Limit input length
         this.inputField.setEditable(true);
+        this.inputField.setFocused(true); // Focus the input field when the screen is opened
         this.addDrawableChild(this.inputField);
 
         // Save Button
         this.addDrawableChild(ButtonWidget.builder(Text.literal("Save"), button -> {
-            this.savedToDo = this.inputField.getText();
-            if (!this.savedToDo.isEmpty()) {
-                taskManager.addTask(this.savedToDo);
-                this.populateTaskList();
-                this.savedToDo = ""; // Clear the savedToDo after adding
-            }
-            this.inputField.setText(""); // Clear the input field
+            this.saveInput();
         }).dimensions(this.width / 2 + 80, this.height - 50, 50, 20).build());
+    }
+
+    private void saveInput() {
+        String savedToDo = this.inputField.getText();
+        if (!savedToDo.isEmpty()) {
+            taskManager.addTask(savedToDo);
+            this.populateTaskList();
+            savedToDo = ""; // Clear the savedToDo after adding
+        }
+        this.inputField.setText(""); // Clear the input field
     }
 
     private void populateTaskList() {
@@ -122,6 +126,10 @@ public class TodoScreen extends Screen {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (keyCode == GLFW.GLFW_KEY_ENTER) {
+            this.saveInput();
+            return true;
+        }
         return this.inputField.keyPressed(keyCode, scanCode, modifiers) || super.keyPressed(keyCode, scanCode, modifiers);
     }
 }
