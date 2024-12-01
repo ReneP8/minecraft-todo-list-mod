@@ -31,9 +31,7 @@ public class ScrollableListWidget extends EntryListWidget<ScrollableListWidget.T
     }
 
     @Override
-    protected void appendClickableNarrations(NarrationMessageBuilder builder) {
-
-    }
+    protected void appendClickableNarrations(NarrationMessageBuilder builder) {}
 
     public static class TodoEntry extends Entry<TodoEntry> {
         private final String text;
@@ -59,9 +57,17 @@ public class ScrollableListWidget extends EntryListWidget<ScrollableListWidget.T
 
         @Override
         public void render(DrawContext context, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered, float delta) {
+            // Calculate available width for the text
+            int availableWidth = entryWidth - 80; // Adjust based on the width of the delete button and padding
+
+            // Truncate the text if it exceeds the available width
+            String displayText = isDone ? text + " (done)" : text;
+            if (MinecraftClient.getInstance().textRenderer.getWidth(displayText) > availableWidth) {
+                displayText = MinecraftClient.getInstance().textRenderer.trimToWidth(displayText, availableWidth - MinecraftClient.getInstance().textRenderer.getWidth("...")) + "...";
+            }
+
             // Render the to-do text with strikethrough if done
             int color = isDone ? 0xFFAAAAAA : 0xFFFFFF; // Gray color if done
-            String displayText = isDone ? text + " (done)" : text; // Strikethrough if done
             context.drawTextWithShadow(MinecraftClient.getInstance().textRenderer, displayText, x + 25, y + 2, color);
 
             // Render the delete button
