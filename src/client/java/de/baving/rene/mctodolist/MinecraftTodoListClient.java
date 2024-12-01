@@ -21,7 +21,6 @@ public class MinecraftTodoListClient implements ClientModInitializer {
     public void onInitializeClient() {
         HudRenderCallback.EVENT.register(this::onHudRender);
         taskManager = TaskManager.getInstance();
-        System.out.println("To-Do List Mod initialized!");
 
         // Register key binding
         openTodoScreenKey = new KeyBinding(
@@ -40,16 +39,31 @@ public class MinecraftTodoListClient implements ClientModInitializer {
     }
 
     private void onHudRender(DrawContext drawContext, RenderTickCounter renderTickCounter) {
-        // Example rendering a static text
         MinecraftClient client = MinecraftClient.getInstance();
-        drawContext.drawTextWithShadow(client.textRenderer, "Tasks:", 10, 10, 0xFFFFFF);
+        int screenHeight = client.getWindow().getScaledHeight();
+
+        // Calculate the starting position for the task list
+        int xPosition = 10; // Fixed x position on the left side
+        int yPosition = screenHeight / 2 - 50; // Centered vertically
+
+        // Render the "Tasks:" label
+        drawContext.drawTextWithShadow(client.textRenderer, "Tasks:", xPosition, yPosition, 0xFFFFFF);
 
         // Render each task dynamically, but limit to a maximum of 5 tasks
-        int yOffset = 25; // Starting y position for tasks
+        int yOffset = yPosition + 15; // Starting y position for tasks
         int maxTasksToShow = 5; // Maximum number of tasks to show
+        int maxTextLength = 30; // Maximum length for task text
+
         for (int i = 0; i < Math.min(taskManager.getTasks().size(), maxTasksToShow); i++) {
-            String task = "- " + taskManager.getTasks().get(i); // Format: "- task"
-            drawContext.drawTextWithShadow(client.textRenderer, task, 10, yOffset, 0xFFFFFF);
+            String task = taskManager.getTasks().get(i);
+            String displayText = task;
+
+            // Truncate the text if it exceeds the maximum length
+            if (task.length() > maxTextLength) {
+                displayText = task.substring(0, maxTextLength - 3) + "...";
+            }
+
+            drawContext.drawTextWithShadow(client.textRenderer, "- " + displayText, xPosition, yOffset, 0xFFFFFF);
             yOffset += 10; // Move to the next line
         }
     }
