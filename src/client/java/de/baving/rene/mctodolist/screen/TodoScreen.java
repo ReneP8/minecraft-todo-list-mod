@@ -2,6 +2,7 @@
 package de.baving.rene.mctodolist.screen;
 
 import de.baving.rene.mctodolist.TaskManager;
+import de.baving.rene.mctodolist.data.Task;
 import de.baving.rene.mctodolist.widgets.ScrollableListWidget;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -51,7 +52,8 @@ public class TodoScreen extends Screen {
     private void saveInput() {
         String savedToDo = this.inputField.getText();
         if (!savedToDo.isEmpty()) {
-            taskManager.addTask(savedToDo);
+            Task task = new Task(savedToDo);
+            taskManager.addTask(task);
             this.populateTaskList();
         }
         this.inputField.setText(""); // Clear the input field
@@ -60,9 +62,10 @@ public class TodoScreen extends Screen {
     private void populateTaskList() {
         this.activeTaskList.clearAllEntries();
         for (int i = 0; i < taskManager.getTasks().size(); i++) {
-            String task = taskManager.getTasks().get(i);
+            Task task = taskManager.getTasks().get(i);
+            boolean isDone = task.isDone();
             int index = i;
-            this.activeTaskList.addItem(task, false, () -> {
+            this.activeTaskList.addItem(task.getTitle(), isDone, () -> {
                 if (taskManager.getTasks().size() > index) {
                     taskManager.removeTask(index);
                 }
@@ -71,29 +74,13 @@ public class TodoScreen extends Screen {
                 }
             }, () -> {
                 if (taskManager.getTasks().size() > index) {
-                    taskManager.markTaskAsDone(index);
+                    if (isDone) {
+                        taskManager.markTaskAsNotDone(index);
+                    } else {
+                        taskManager.markTaskAsDone(index);
+                    }
                 }
                 if (this.activeTaskList.children().size() > index) {
-                    this.activeTaskList.removeTodoEntry(this.activeTaskList.children().get(index));
-                }
-                this.populateTaskList();
-            });
-        }
-        for (int i = 0; i < taskManager.getDoneTasks().size(); i++) {
-            String task = taskManager.getDoneTasks().get(i);
-            int index = i;
-            this.activeTaskList.addItem(task, true, () -> {
-                if (taskManager.getDoneTasks().size() > index) {
-                    taskManager.removeDoneTask(index);
-                }
-                if (this.activeTaskList.children().size() > index){
-                    this.activeTaskList.removeTodoEntry(this.activeTaskList.children().get(index));
-                }
-            }, () -> {
-                if (taskManager.getDoneTasks().size() > index) {
-                    taskManager.markTaskAsNotDone(index);
-                }
-                if (this.activeTaskList.children().size() > index){
                     this.activeTaskList.removeTodoEntry(this.activeTaskList.children().get(index));
                 }
                 this.populateTaskList();

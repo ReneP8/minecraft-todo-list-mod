@@ -56,7 +56,7 @@ public class MinecraftTodoListClient implements ClientModInitializer {
             int maxTextLength = 30; // Maximum length for task text
 
             for (int i = 0; i < Math.min(taskManager.getTasks().size(), maxTasksToShow); i++) {
-                String task = taskManager.getTasks().get(i);
+                String task = taskManager.getTasks().get(i).getTitle();
                 String displayText = task;
 
                 // Truncate the text if it exceeds the maximum length
