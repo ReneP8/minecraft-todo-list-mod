@@ -84,6 +84,20 @@ public class TodoScreen extends Screen {
                     this.activeTaskList.removeTodoEntry(this.activeTaskList.children().get(index));
                 }
                 this.populateTaskList();
+            }, () -> {
+                if (index > 0) {
+                    Task taskToMove = taskManager.getTasks().get(index);
+                    taskManager.getTasks().remove(index);
+                    taskManager.getTasks().add(index - 1, taskToMove);
+                    this.populateTaskList();
+                }
+            }, () -> {
+                if (index < taskManager.getTasks().size() - 1) {
+                    Task taskToMove = taskManager.getTasks().get(index);
+                    taskManager.getTasks().remove(index);
+                    taskManager.getTasks().add(index + 1, taskToMove);
+                    this.populateTaskList();
+                }
             });
         }
     }
